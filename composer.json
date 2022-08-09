@@ -1,0 +1,23 @@
+{
+    "name": "nextpost-tech/nohup",
+    "description": "A library to run a command in the background, it will return the process's pid, and get it's is running status anytime in the another process, and can be stoped anytime.",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Nextpost.tech",
+            "homepage": "https://nextpost.tech",
+            "role": "Developer"
+        }
+    ],
+    "minimum-stability": "stable",
+    "require": {},
+    "require-dev": {
+        "phpunit/phpunit": "^5.7"
+    },
+    "autoload": {
+        "psr-4": {
+            "nextposttech\\nohup\\": "src/"
+        }
+    }
+}
