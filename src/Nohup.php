@@ -11,18 +11,18 @@ use nextposttech\nohup\exceptions\RuntimeException;
 
 class Nohup
 {
-    public static function run($commandLine, $outputFile = null, $errlogFile = null)
+    public static function run($commandLine, $droplet = null, $outputFile = null, $errlogFile = null)
     {
         $command = new Command($commandLine, $outputFile, $errlogFile);
-        return self::runCommand($command);
+        return self::runCommand($command, $droplet);
     }
 
-    public static function runCommand(Command $command)
+    public static function runCommand(Command $command, $droplet = null)
     {
-        if (OS::isWin()) {
+        if (OS::isWin() && empty($droplet)) {
             $pid = self::runWindowsCommand($command);
         } else {
-            $pid = self::runNixCommand($command);
+            $pid = self::runNixCommand($command, $droplet);
         }
         return new Process($pid);
     }
@@ -75,7 +75,7 @@ class Nohup
         return self::getWindowsRealPid($ppid);
     }
 
-    protected static function runNixCommand(Command $command)
+    protected static function runNixCommand(Command $command, $droplet = null)
     {
         $output = ' >/dev/null';
         $error = ' 2>/dev/null';
@@ -86,6 +86,9 @@ class Nohup
             $error = ' 2>'. $command->getErrlogFile();
         }
         $commandLine = $command . $output . $error . "& echo $!";
+        if (class_exists('\Event') && !empty($droplet)) {
+            $commandLine = \Event::trigger("load_balancing.nohup.doctl.command", $droplet, $commandLine);
+        }
         return (int) shell_exec($commandLine);
     }
 }

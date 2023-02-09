@@ -10,15 +10,22 @@ namespace nextposttech\nohup;
 class Process
 {
     protected $pid;
+    protected $droplet;
 
-    public function __construct($pid)
+    public function __construct($pid, $droplet = null)
     {
         $this->pid = $pid;
+        $this->droplet = $droplet;
     }
 
     public function getPid()
     {
         return $this->pid;
+    }
+
+    public function getDroplet()
+    {
+        return $this->droplet; 
     }
 
     /**
@@ -27,11 +34,14 @@ class Process
      */
     public function isRunning()
     {
-        if (OS::isWin()) {
+        if (OS::isWin() && empty($this->droplet)) {
             $cmd = "wmic process get processid | find \"{$this->pid}\"";
             $res = array_filter(explode(" ", shell_exec($cmd)));
             return count($res) > 0 && $this->pid == reset($res);
         } else {
+            if (class_exists('\Event') && !empty($this->droplet)) {
+                return \Event::trigger("load_balancing.nohup.doctl.is_running", $this->droplet, $this->pid);
+            }
             return !!posix_getsid($this->pid);
         }
     }
@@ -41,10 +51,13 @@ class Process
      */
     public function stop()
     {
-        if (OS::isWin()) {
+        if (OS::isWin() && empty($this->droplet)) {
             $cmd = "taskkill /pid {$this->pid} -t -f";
         } else {
             $cmd = "kill -9 {$this->pid}";
+        }
+        if (class_exists('\Event') && !empty($this->droplet)) {
+            $cmd = \Event::trigger("load_balancing.nohup.doctl.command", $this->droplet, $cmd);
         }
         shell_exec($cmd);
     }
