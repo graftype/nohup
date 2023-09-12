@@ -121,7 +121,7 @@ class Nohup
         }
 
         if (!empty($ssh)) {
-            return $ssh->exec($commandLine);
+            return (int) $ssh->exec($commandLine);
         } else {
             return (int) shell_exec($commandLine);
         }
