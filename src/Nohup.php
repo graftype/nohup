@@ -7,22 +7,30 @@
 
 namespace nextposttech\nohup;
 
-use nextposttech\nohup\exceptions\RuntimeException;
+use phpseclib3\Net\SSH2;
+use phpseclib3\Crypt\PublicKeyLoader;
 
 class Nohup
 {
-    public static function run($commandLine, $droplet = null, $outputFile = null, $errlogFile = null)
+    protected $ssh;
+    protected $ip = "";
+    protected $port = 22;
+    protected $username;
+    protected $password;
+    protected $privatekey;
+    
+    public static function run($commandLine, $outputFile = null, $errlogFile = null, $auth = [])
     {
         $command = new Command($commandLine, $outputFile, $errlogFile);
-        return self::runCommand($command, $droplet);
+        return self::runCommand($command, $auth);
     }
 
-    public static function runCommand(Command $command, $droplet = null)
+    public static function runCommand(Command $command, $auth = [])
     {
-        if (OS::isWin() && empty($droplet)) {
-            $pid = self::runWindowsCommand($command);
+        if (OS::isWin()) {
+            $pid = self::runWindowsCommand($command, $auth);
         } else {
-            $pid = self::runNixCommand($command, $droplet);
+            $pid = self::runNixCommand($command, $auth);
         }
         return new Process($pid);
     }
@@ -56,8 +64,12 @@ class Nohup
         ];
     }
 
-    protected static function runWindowsCommand(Command $command)
+    protected static function runWindowsCommand(Command $command, $auth = [])
     {
+        if (!empty($auth)) {
+            throw new \Exception('Nohup | SSH functionality for Nohup not supported on Windows platform yet.');
+        }
+
         $commandLine = "START /b " . $command;
         $descriptions = self::getDescription($command);
         $handle = proc_open(
@@ -67,7 +79,7 @@ class Nohup
             getcwd()
         );
         if (!is_resource($handle)) {
-            throw new RuntimeException('Unable to launch a background process');
+            throw new \Exception('Unable to launch a background process');
         }
         $processInfo = proc_get_status($handle);
         $ppid = $processInfo['pid'];
@@ -75,7 +87,7 @@ class Nohup
         return self::getWindowsRealPid($ppid);
     }
 
-    protected static function runNixCommand(Command $command, $droplet = null)
+    protected static function runNixCommand(Command $command, $auth = [])
     {
         $output = ' >/dev/null';
         $error = ' 2>/dev/null';
@@ -86,9 +98,32 @@ class Nohup
             $error = ' 2>'. $command->getErrlogFile();
         }
         $commandLine = $command . $output . $error . "& echo $!";
-        if (class_exists('\Event') && !empty($droplet)) {
-            $commandLine = \Event::trigger("load_balancing.nohup.doctl.command", $droplet, $commandLine);
+
+        $ip = !empty($auth["ip"]) ? $auth["ip"] : "";
+        $port = !empty($auth["port"]) ? $auth["port"] : 22;
+        $username = !empty($auth["username"]) ? $auth["username"] : "root"; 
+        $password = !empty($auth["port"]) ? $auth["port"] : "";
+        $privatekey = !empty($auth["privatekey"]) ? $auth["privatekey"] : "";
+
+        if (!empty($ip)) {
+            $ssh = new SSH2($ip, $port);
+            if (empty($privatekey)) {
+                if (!$ssh->login($username, $password)) {
+                    throw new \Exception(sprintf('Nohup | SSH authentication to server %s failed. Please try again or contact support.', $ip));
+                }
+            } else {
+                $key = PublicKeyLoader::load($privatekey);
+                if (!$ssh->login($username, $key)) {
+                    throw new \Exception(sprintf('Nohup | SSH authentication via private key to server %s failed. Please try again or contact support.', $ip));
+                }
+            }
+            $ssh->enableQuietMode();
         }
-        return (int) shell_exec($commandLine);
+
+        if (!empty($ssh)) {
+            return $ssh->exec($commandLine);
+        } else {
+            return (int) shell_exec($commandLine);
+        }
     }
 }
