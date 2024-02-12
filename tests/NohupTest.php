@@ -2,7 +2,7 @@
 /**
  * php-nohup
  * @version 1.0
- * @author Nextpost.tech (https://nextpost.tech)
+ * @author Graftype (https://graftype.com)
  */
 
 class NohupTest extends \PHPUnit_Framework_TestCase
@@ -12,7 +12,7 @@ class NohupTest extends \PHPUnit_Framework_TestCase
     public function setUp()
     {
         parent::setUp();
-        $script = \nextposttech\nohup\OS::isWin() ? 'error.bat' : 'error';
+        $script = \graftype\nohup\OS::isWin() ? 'error.bat' : 'error';
         $this->errorScript = __DIR__ . DIRECTORY_SEPARATOR . "fixtures" .DIRECTORY_SEPARATOR . $script;
 
     }
@@ -20,7 +20,7 @@ class NohupTest extends \PHPUnit_Framework_TestCase
     public function testProccessRunningStatus()
     {
         $cmd = 'php -r "sleep(2);"';
-        $process = \nextposttech\nohup\Nohup::run($cmd);
+        $process = \graftype\nohup\Nohup::run($cmd);
         $this->assertTrue($process->isRunning());
         while ($process->isRunning()) {
             sleep(1);
@@ -31,7 +31,7 @@ class NohupTest extends \PHPUnit_Framework_TestCase
     public function testProcessCanBeStop()
     {
         $cmd = 'php -r "sleep(5);"';
-        $process = \nextposttech\nohup\Nohup::run($cmd);
+        $process = \graftype\nohup\Nohup::run($cmd);
         $this->assertTrue($process->isRunning());
         $process->stop();
         $this->assertFalse($process->isRunning());
@@ -41,7 +41,7 @@ class NohupTest extends \PHPUnit_Framework_TestCase
     {
         $cmd = 'php -r "echo \"OK\";"';
         $file = $this->tempfile();
-        $process = \nextposttech\nohup\Nohup::run($cmd, $file);
+        $process = \graftype\nohup\Nohup::run($cmd, $file);
         while ($process->isRunning()) {
             sleep(1);
         }
@@ -53,7 +53,7 @@ class NohupTest extends \PHPUnit_Framework_TestCase
     public function testErrCanBeWriteToFile()
     {
         $file = $this->tempfile();
-        $process = \nextposttech\nohup\Nohup::run($this->errorScript, '', $file);
+        $process = \graftype\nohup\Nohup::run($this->errorScript, '', $file);
         while ($process->isRunning()) {
             sleep(1);
         }

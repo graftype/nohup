@@ -2,10 +2,10 @@
 /**
  * php-nohup
  * @version 1.0
- * @author Nextpost.tech (https://nextpost.tech)
+ * @author Graftype (https://graftype.com)
  */
 
-namespace nextposttech\nohup;
+namespace graftype\nohup;
 
 class OS
 {
