@@ -2,7 +2,7 @@
 /**
  * php-nohup
  * @version 1.0
- * @author Graftype (https://graftype.com)
+ * @author Nextpost.tech (https://nextpost.tech)
  */
 
 class NohupTest extends \PHPUnit_Framework_TestCase
