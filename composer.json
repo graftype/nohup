@@ -1,12 +1,12 @@
 {
-    "name": "graftype/nohup",
+    "name": "nextpost-tech/nohup",
     "description": "A library to run a command in the background, it will return the process's pid, and get it's is running status anytime in the another process, and can be stoped anytime.",
     "type": "library",
     "license": "MIT",
     "authors": [
         {
-            "name": "Graftype",
-            "homepage": "https://graftype.com",
+            "name": "Michael Johnson",
+            "homepage": "https://mjcodebase.com",
             "role": "Developer"
         }
     ],
@@ -19,7 +19,7 @@
     },
     "autoload": {
         "psr-4": {
-            "graftype\\nohup\\": "src/"
+            "nextposttech\\nohup\\": "src/"
         }
     }
 }
