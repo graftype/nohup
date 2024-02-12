@@ -14,7 +14,7 @@ A library to run a command in the background, it will return the process's pid, 
 Using composer:  
 
 ```console
-composer require graftype/nohup
+composer require nextpost-tech/nohup
 ```
 
 # Usage
@@ -22,7 +22,7 @@ composer require graftype/nohup
 ## Run a script in background
 
 ```php
-use graftype\nohup;
+use nextposttech\nohup;
 
 $process = Nohup::run('sleep 5');
 ```
@@ -42,7 +42,7 @@ Get the pid : `$process->getPid()`, it will return the real pid in both window a
 Get it's running status with the function `$process->isRunning()`:
 
 ```php
-use graftype\nohup\Nohup;
+use nextposttech\nohup\Nohup;
 
 $process = Nohup::run('sleep 5');
 while ($process->isRunning()) {
@@ -57,7 +57,7 @@ echo "Done.\n";
 ## Create process from known pid ($pid)
 
 ```php
-use graftype\nohup\Process;
+use nextposttech\nohup\Process;
 
 $process = Process::loadFromPid($pid);  
 // or
