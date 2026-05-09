@@ -102,7 +102,7 @@ class Nohup
         $ip = !empty($auth["ip"]) ? $auth["ip"] : "";
         $port = !empty($auth["port"]) ? $auth["port"] : 22;
         $username = !empty($auth["username"]) ? $auth["username"] : "root"; 
-        $password = !empty($auth["port"]) ? $auth["port"] : "";
+        $password = !empty($auth["password"]) ? $auth["password"] : "";
         $privatekey = !empty($auth["privatekey"]) ? $auth["privatekey"] : "";
 
         if (!empty($ip)) {
